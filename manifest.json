@@ -1,0 +1,23 @@
+{
+  "description": "This extension is meant to be useful when making studies with user experience and tracking mouse movement.",
+  "manifest_version": 2,
+  "name": "mouse-heatmap-extension",
+  "version": "1.0.0",
+  "icons": {
+    "48": "icons/icon.png"
+  },
+  "applications": {
+    "gecko": {
+      "id": "mouseheatmapext@gmail.com"
+    }
+  },
+  "permissions": [ "*://*.10.0.40.3/*", "*://localhost/*", "*://*.ipcorp91.com.br/*", "*://*.bvfinanceira.com.br/*", "*://*.gedocbvfinanceira.com.br/*", "*://*.bancovotorantim.com.br/*", "*://*.ipcorp.com.br/*" ],
+  "content_scripts": [{
+    "matches": [ "*://*.10.0.40.3/*", "*://localhost/*", "*://*.ipcorp91.com.br/*", "*://*.bvfinanceira.com.br/*", "*://*.gedocbvfinanceira.com.br/*", "*://*.bancovotorantim.com.br/*", "*://*.ipcorp.com.br/*" ],
+    "js": [
+      "app/jquery.js",
+      "app/util.js",
+      "app/login.js"
+    ]
+  }]
+}

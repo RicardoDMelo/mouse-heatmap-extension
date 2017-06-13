@@ -1,0 +1,43 @@
+{
+  "name": "mouse-heatmap-extension",
+  "version": "1.0.0",
+  "description": "This extension is meant to be useful when making studies with user experience and tracking mouse movement.",
+  "main": "app/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RicardoDMelo/mouse-heatmap-extension.git"
+  },
+  "keywords": [
+    "heatmap",
+    "mouse",
+    "extension",
+    "tracking"
+  ],
+  "author": "Ricardo Melo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RicardoDMelo/mouse-heatmap-extension/issues"
+  },
+  "homepage": "https://github.com/RicardoDMelo/mouse-heatmap-extension#readme",
+  "devDependencies": {
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-clean-css": "^3.4.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-connect": "^5.0.0",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-rev": "^7.1.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-sourcemaps": "^2.6.0",
+    "gulp-uglify": "^3.0.0",
+    "gulp-usemin": "^0.3.28",
+    "run-sequence": "^1.2.2"
+  },
+  "dependencies": {
+    "heatmap.js": "^2.0.5",
+    "jquery": "^3.2.1"
+  }
+}
