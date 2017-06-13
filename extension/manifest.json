@@ -1,0 +1,19 @@
+{
+  "description": "This extension is meant to be useful when making studies with user experience and tracking mouse movement.",
+  "manifest_version": 2,
+  "name": "mouse-heatmap-extension",
+  "version": "1.0.0",
+  "icons": {
+    "48": "icons/icon.png"
+  },
+  "permissions": [
+    "tabs",
+    "webNavigation",
+    "http://*/",
+    "https://*/"
+  ],
+  "background": {
+    "page": "index.html"
+  },
+  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'"
+}

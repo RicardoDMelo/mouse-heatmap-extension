@@ -1,8 +1,8 @@
 {
   "name": "mouse-heatmap-extension",
   "version": "1.0.0",
-  "description": "This extension is meant to be useful when making studies with user experience and tracking mouse movement.",
-  "main": "app/index.js",
+  "description": "This project aims to receive data from an extension to make mouse trackign heatmaps.",
+  "main": "server/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -37,6 +37,9 @@
     "run-sequence": "^1.2.2"
   },
   "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "firebase": "^4.1.2",
     "heatmap.js": "^2.0.5",
     "jquery": "^3.2.1"
   }
