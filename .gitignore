@@ -63,3 +63,11 @@ build/
 # dotenv environment variables file
 .env
 
+# Extension Files
+*.pem
+*.crx
+
+# Compressed files
+*.zip
+*.rar
+

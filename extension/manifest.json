@@ -9,11 +9,14 @@
   "permissions": [
     "tabs",
     "webNavigation",
-    "http://*/",
-    "https://*/"
+    "*://*.promobit.com.br/*"
   ],
-  "background": {
-    "page": "index.html"
-  },
-  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'"
+  "content_scripts": [{
+    "matches": ["*://*.promobit.com.br/*"],
+    "js": [
+      "firebase.js",
+      "tracking.js"
+    ]
+  }],
+  "content_security_policy": "script-src 'self' https://*.firebaseio.com https://www.googleapis.com; object-src 'self'"
 }
