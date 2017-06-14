@@ -10,7 +10,9 @@ var rev = require('gulp-rev');
 var usemin = require('gulp-usemin');
 var cleanCss = require('gulp-clean-css');
 var connect = require('gulp-connect');
+var open = require('gulp-open');
 
+var port = 8888;
 var paths = {
     scripts: ['app/js/**/*.js'],
     images: ['app/img/**/*'],
@@ -55,22 +57,47 @@ gulp.task('usemin', ['sass'], function () {
         .pipe(gulp.dest('build/'));
 });
 
-gulp.task('connect', function () {
-    connect.server({
-        port: 8888,
-        root: 'build',
-        livereload: true
-    });
+
+gulp.task('open', function () {
+    gulp.src(__filename)
+        .pipe(open({
+            uri: 'http://localhost:' + port
+        }))
+        .on('error', defaultErrorHandler('open'));
 });
 
 gulp.task('reload', function () {
-    connect.reload()
+    connect.reload();
 });
 
 gulp.task('watch', function () {
     gulp.watch([paths.all], ['build', 'reload']);
 });
 
+gulp.task('connect', function () {
+    connect.server({
+        port: port,
+        root: 'build',
+        livereload: true
+    });
+});
+
 gulp.task('serve', function (callback) {
-    runSequence('build', 'connect', 'watch', callback);
+    runSequence('build', 'connect', 'watch', 'open', callback);
+});
+
+gulp.task('watch-debug', function () {
+    gulp.watch([paths.all], ['sass', 'reload']);
+});
+
+gulp.task('connect-debug', function () {
+    connect.server({
+        port: port,
+        root: ['app', '.'],
+        livereload: true
+    });
+});
+
+gulp.task('debug', function (callback) {
+    runSequence('sass', 'connect-debug', 'watch', 'open', callback);
 });

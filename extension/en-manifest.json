@@ -1,24 +1,20 @@
 {
-  "description": "Esta extensão irá monitorar algumas ações de usuários para análise de usabilidade.",
+  "description": "This extension is meant to be useful when making studies with user experience and tracking mouse movement.",
   "manifest_version": 2,
-  "name": "Tracking para Estudo de Usabilidade",
-  "short_name": "Estudo de Usabilidade",
-  "version": "1.0.3",
+  "name": "Tracking Study Extension",
+  "short_name": "Tracking Study",
+  "version": "1.0.1",
   "icons": {
     "128": "icons/icon.png"
   },
   "permissions": [
     "*://*.promobit.com.br/*",
-    "*://*.reddit.com/*",
-    "*://*.uol.com.br/*",
-    "*://*.g1.globo.com/*"
+    "*://*.reddit.com/*"
   ],
   "content_scripts": [{
     "matches": [
       "*://*.promobit.com.br/*",
-      "*://*.reddit.com/*",
-      "*://*.uol.com.br/*",
-      "*://*.g1.globo.com/*"
+      "*://*.reddit.com/*"
     ],
     "js": [
       "firebase.js",
