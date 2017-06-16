@@ -19,7 +19,29 @@
 </head>
 
 <body>
-  <p>Página de Teste do Ricardo</p>
+  <h1>Tracking Review</h1>
+  <span id="conn-status">Loading Firebase...</span>
+  <div style="margin-top: 10px">
+    <label for="sites-list">Sites</label>
+    <select id="sites-list"></select>
+  </div>
+
+  <div>
+    <label for="users-list">Users</label>
+    <select id="users-list"></select>
+  </div>
+
+  <div>
+    <label for="sessions-list">Sessions</label>
+    <select id="sessions-list"></select>
+  </div>
+
+  <h2>Events</h2>
+  <pre>
+    <code id="tracking-log">
+    </code>
+  </pre>
+
   <script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
 
   <!-- build:libs js/vendor.min.js -->

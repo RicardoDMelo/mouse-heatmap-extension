@@ -99,5 +99,5 @@ gulp.task('connect-debug', function () {
 });
 
 gulp.task('debug', function (callback) {
-    runSequence('sass', 'connect-debug', 'watch', 'open', callback);
+    runSequence('sass', 'connect-debug', 'watch-debug', 'open', callback);
 });
