@@ -8,9 +8,13 @@
     "128": "icons/icon.png"
   },
   "permissions": [
-    "*://*.promobit.com.br/*",
-    "*://*.reddit.com/*"
+    "tabs",
+    "<all_urls>"
   ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
   "content_scripts": [{
     "matches": [
       "*://*.promobit.com.br/*",

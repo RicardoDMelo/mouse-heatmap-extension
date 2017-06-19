@@ -36,6 +36,11 @@
     <select id="sessions-list"></select>
   </div>
 
+  <h2>Heatmap</h2>
+  <div id="heatmap-container">
+
+  </div>
+
   <h2>Events</h2>
   <pre>
     <code id="tracking-log">
@@ -47,9 +52,11 @@
   <!-- build:libs js/vendor.min.js -->
   <script src="../node_modules/jquery/dist/jquery.min.js"></script>
   <script src="../node_modules/heatmap.js/build/heatmap.min.js"></script>
+  <script src="../node_modules/underscore/underscore-min.js"></script>
   <!-- endbuild -->
 
   <!-- build:js js/app.min.js -->
+  <script src="js/component.js"></script>
   <script src="js/util.js"></script>
   <script src="js/connection.js"></script>
   <script src="js/main.js"></script>

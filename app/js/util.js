@@ -22,9 +22,15 @@ var util = (function () {
         });
     }
 
-    var replaceAll = function (text, search, replacement) {        
+    var replaceAll = function (text, search, replacement) {
         return text.split(search).join(replacement);
     };
+
+    var valuesToArray = function (obj) {
+        return Object.keys(obj).map(function (key) {
+            return obj[key];
+        });
+    }
 
     var createCookie = function (name, value, days) {
         var expires = "";
@@ -58,6 +64,7 @@ var util = (function () {
         createCookie: createCookie,
         readCookie: readCookie,
         eraseCookie: eraseCookie,
-        replaceAll: replaceAll
+        replaceAll: replaceAll,
+        valuesToArray: valuesToArray
     }
 }());

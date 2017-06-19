@@ -39,8 +39,8 @@
                 x: currentMousePosition.x,
                 y: currentMousePosition.y,
                 scroll: currentScrollPosition,
-                height: window.innerHeight,
-                width: window.innerWidth,
+                height: document.body.scrollHeight,
+                width: document.body.scrollWidth,
                 path: window.location.pathname + window.location.hash + window.location.search
             });
         };
@@ -53,8 +53,8 @@
                 x: currentMousePosition.x,
                 y: currentMousePosition.y,
                 scroll: currentScrollPosition,
-                height: window.innerHeight,
-                width: window.innerWidth,
+                height: document.body.scrollHeight,
+                width: document.body.scrollWidth,
                 path: window.location.pathname + window.location.hash + window.location.search
             });
         };
@@ -67,8 +67,8 @@
                 x: currentMousePosition.x,
                 y: currentMousePosition.y,
                 scroll: currentScrollPosition,
-                height: window.innerHeight,
-                width: window.innerWidth,
+                height: document.body.scrollHeight,
+                width: document.body.scrollWidth,
                 path: window.location.pathname + window.location.hash + window.location.search
             });
         };
@@ -83,8 +83,8 @@
                     x: currentMousePosition.x,
                     y: currentMousePosition.y,
                     scroll: currentScrollPosition,
-                    height: window.innerHeight,
-                    width: window.innerWidth,
+                    height: document.body.scrollHeight,
+                    width: document.body.scrollWidth,
                     path: window.location.pathname + window.location.hash + window.location.search
                 });
                 lastScrollPosition = currentScrollPosition;
@@ -93,6 +93,7 @@
 
         timerMouseMovement = setInterval(function () {
             if (lastMousePosition != currentMousePosition) {
+                util.log(currentMousePosition.x + ':' + currentMousePosition.y);
                 trackingData.push({
                     eventType: 1,
                     eventDescription: 'mouse',
@@ -100,15 +101,30 @@
                     x: currentMousePosition.x,
                     y: currentMousePosition.y,
                     scroll: currentScrollPosition,
-                    height: window.innerHeight,
-                    width: window.innerWidth,
+                    height: document.body.scrollHeight,
+                    width: document.body.scrollWidth,
                     path: window.location.pathname + window.location.hash + window.location.search
                 });
 
                 lastMousePosition = currentMousePosition;
                 lastScrollPosition = currentScrollPosition;
             }
-        }, 350);
+        }, 100);
+        var preview = document.createElement('img');
+        preview.id = 'preview-print';
+        preview.style.position = 'fixed';
+        preview.style.bottom = '0';
+        preview.style.right = '0';
+        preview.style.border = '3px black solid';
+        preview.style.width = '300px';
+        preview.style.height = '300px';
+        preview.style.zIndex = '999';
+        preview.crossOrigin = 'Anonymous';
+        document.getElementsByTagName('body')[0].appendChild(preview);
+
+        chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+            preview.src = msg.dataUrl;
+        });
 
         timerSync = setInterval(function () {
             if (trackingData.length > 0) {
@@ -116,10 +132,10 @@
                 var updatedData = {};
                 trackingData = [];
                 var ref = firebase.database().ref();
-                
+
                 updatedData['sites/' + domainName] = true;
                 updatedData['users/' + domainName + '/' + uid] = true;
-                updatedData['sessions/' + domainName + '/' + uid + '/' + sessionToken] = true;                
+                updatedData['sessions/' + domainName + '/' + uid + '/' + sessionToken] = true;
                 ref.update(updatedData, function (er) {
                     if (er) {
                         util.error(er);

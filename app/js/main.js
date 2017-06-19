@@ -17,33 +17,33 @@
                 util.log("Firebase connected.");
                 connStatus.textContent = 'Firebase connected.';
                 var sites = Object.keys(snapshot.val());
-                bindSelect(siteList, sites);
+                component.bindSelect(siteList, sites);
                 siteList.onchange = onSiteChanged;
             })
     }
 
     var onSiteChanged = function () {
-        bindSelect(userList, []);
-        bindSelect(sessionList, []);
+        component.bindSelect(userList, []);
+        component.bindSelect(sessionList, []);
         var siteSelected = siteList.options[siteList.selectedIndex].value;
 
         firebase.database().ref('/users/' + siteSelected).once('value')
             .then(function (snapshot) {
                 var users = Object.keys(snapshot.val());
-                bindSelect(userList, users);
+                component.bindSelect(userList, users);
                 userList.onchange = onUserChanged;
             })
     }
 
     var onUserChanged = function () {
-        bindSelect(sessionList, []);
+        component.bindSelect(sessionList, []);
         var siteSelected = siteList.options[siteList.selectedIndex].value;
         var userSelected = userList.options[userList.selectedIndex].value;
 
         firebase.database().ref('/sessions/' + siteSelected + '/' + userSelected).once('value')
             .then(function (snapshot) {
                 var sessions = Object.keys(snapshot.val());
-                bindSelect(sessionList, sessions);
+                component.bindSelect(sessionList, sessions);
                 sessionList.onchange = onSessionChanged;
             })
     }
@@ -55,40 +55,36 @@
 
         firebase.database().ref('/events/' + siteSelected + '/' + userSelected + '/' + sessionSelected).once('value')
             .then(function (snapshot) {
-                var events = snapshot.val();
+                var events = _.filter(util.valuesToArray(snapshot.val()), function (el) {
+                    return el.eventType == 1;
+                });
                 var eventsJson = JSON.stringify(events, null, 4);
                 util.log(eventsJson);
                 trackingLog.textContent = eventsJson;
+                var container = document.getElementById('heatmap-container');
+                container.style.width = events[0].width + 'px';
+                container.style.height = events[0].height + 'px';
+                while (container.firstChild) {
+                    container.removeChild(container.firstChild);
+                }
+
+                var heatmapInstance = h337.create({
+                    container: container,
+                    radius: 90
+                });
+                events.forEach(function (element) {
+                    heatmapInstance.addData({
+                        x: element.x,
+                        y: element.y,
+                        value: 1
+                    });
+                }, this);
             })
     }
 
-    var bindSelect = function (sel, list) {
-        clearSelect(sel);
-        var fragment = document.createDocumentFragment();
-
-        var opt = document.createElement('option');
-        opt.innerHTML = '-';
-        opt.value = null;
-        fragment.appendChild(opt);
-
-        list.forEach(function (item, index) {
-            var opt = document.createElement('option');
-            opt.innerHTML = item;
-            opt.value = item;
-            fragment.appendChild(opt);
-        });
-        sel.appendChild(fragment);
-    }
-
-    var clearSelect = function (sel) {
-        sel.options.length = 0;
-
-        sel.selectedIndex = 0;
-    }
-
-    bindSelect(siteList, []);
-    bindSelect(userList, []);
-    bindSelect(sessionList, []);
+    component.bindSelect(siteList, []);
+    component.bindSelect(userList, []);
+    component.bindSelect(sessionList, []);
 
     firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
