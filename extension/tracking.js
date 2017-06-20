@@ -23,8 +23,8 @@
     var startTracking = function () {
         document.body.onmousemove = function trackingMouseEvent(ev) {
             currentMousePosition = {
-                x: ev.layerX,
-                y: ev.layerY,
+                x: ev.pageX,
+                y: ev.pageY,
             };
         };
 
@@ -34,20 +34,30 @@
                 lastMousePosition = currentMousePosition;
                 lastScrollPosition = currentScrollPosition;
             }
-        }, 100);
+        }, 200);
 
+        var scrollTimer = null;
         document.body.onscroll = function trackingScrollEvent(ev) {
             currentScrollPosition = document.body.scrollTop;
             if (lastScrollPosition != currentScrollPosition) {
                 pushNewEvent(2, 'scroll');
                 lastScrollPosition = currentScrollPosition;
+
+                if (scrollTimer !== null) {
+                    clearTimeout(scrollTimer);
+                }
+                scrollTimer = setTimeout(function () {
+                    chrome.runtime.sendMessage({
+                        message: 'print'
+                    });
+                }, 150);
             }
         };
 
         document.body.onclick = function trackingClickEvent(ev) {
             currentMousePosition = {
-                x: ev.layerX,
-                y: ev.layerY,
+                x: ev.pageX,
+                y: ev.pageY,
             };
             pushNewEvent(3, 'click');
         };
@@ -60,20 +70,33 @@
             pushNewEvent(5, 'blur');
         };
 
-
-
         chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             var storage = firebase.storage();
             var storageRef = storage.ref();
             var imageRef = storageRef.child('images/' + sessionToken + '-' + currentScrollPosition + '.jpg');
-            var blob = util.b64toBlob(msg.dataUrl.substr(23));
-            var uploadTask = imageRef.put(blob);
-            uploadTask.on('state_changed', function (snapshot) {}, function (error) {
-                util.error(error);
-            }, function () {
-                util.log('Upload completed: ' + uploadTask.snapshot.downloadURL);
-                currentPrintUrl = uploadTask.snapshot.downloadURL;
-            });
+            var printHeight = currentScrollPosition;
+            imageRef.getDownloadURL()
+                .then(function (url) {
+                    util.log('Print already exists: ' + url);
+                    currentPrintUrl = url;
+                })
+                .catch(function () {
+                    var blob = util.b64toBlob(msg.dataUrl.substr(23));
+                    var uploadTask = imageRef.put(blob);
+                    uploadTask.on('state_changed', function (snapshot) {}, function (error) {
+                        util.error(error);
+                    }, function () {
+                        util.log('Upload completed: ' + uploadTask.snapshot.downloadURL);
+                        currentPrintUrl = uploadTask.snapshot.downloadURL;
+
+                        var ref = firebase.database().ref();
+                        var eventRef = ref.child('prints/' + domainName + '/' + uid + '/' + sessionToken);
+                        eventRef.push({
+                            url: currentPrintUrl,
+                            height: printHeight
+                        });
+                    });
+                });
         });
 
         timerSync = setInterval(function () {
@@ -137,8 +160,7 @@
             scroll: currentScrollPosition,
             height: document.body.scrollHeight,
             width: document.body.scrollWidth,
-            path: window.location.pathname + window.location.hash + window.location.search,
-            printUrl: currentPrintUrl
+            path: window.location.pathname + window.location.hash + window.location.search
         });
     }
 

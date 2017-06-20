@@ -11,6 +11,7 @@ var usemin = require('gulp-usemin');
 var cleanCss = require('gulp-clean-css');
 var connect = require('gulp-connect');
 var open = require('gulp-open');
+var foreach = require('gulp-foreach');
 
 var port = 8888;
 var paths = {
@@ -45,15 +46,19 @@ gulp.task('sass', function () {
 
 gulp.task('usemin', ['sass'], function () {
     return gulp.src(paths.html)
-        .pipe(usemin({
-            html: [htmlmin({
-                collapseWhitespace: true
-            })],
-            js: [sourcemaps.init(), uglify(), sourcemaps.write(), rev()],
-            libs: [uglify(), rev()],
-            css: [cleanCss(), 'concat', rev()]
+        .pipe(foreach(function (stream, file) {
+            return stream
+                .pipe(usemin({
+                    html: [htmlmin({
+                        collapseWhitespace: true
+                    })],
+                    js: [sourcemaps.init(), uglify(), sourcemaps.write(), rev()],
+                    libs: [uglify(), rev()],
+                    css: [cleanCss(), 'concat', rev()]
+                }))
+                .on('error', defaultErrorHandler('usemin'))
         }))
-        .on('error', defaultErrorHandler('usemin'))
+        .on('error', defaultErrorHandler('foreach'))
         .pipe(gulp.dest('build/'));
 });
 

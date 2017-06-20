@@ -11,11 +11,10 @@
     // Create pattern for validation:
     var pattern = new RegExp(parsed.join('|'));
 
-
     var printScreen = function (tabId) {
         chrome.tabs.captureVisibleTab(
             null, {
-                quality: 30
+                quality: 8
             },
             function (dataUrl) {
                 chrome.tabs.sendMessage(tabId, {
@@ -46,4 +45,10 @@
     };
 
     chrome.tabs.onUpdated.addListener(onUpdatedListener);
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.message == "print") {
+            printScreen(sender.tab.id);
+        }
+        sendResponse();
+    });
 }());

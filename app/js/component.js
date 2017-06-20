@@ -2,8 +2,7 @@
 "use strict";
 
 var component = (function () {
-
-
+    
     var bindSelect = function (sel, list) {
         clearSelect(sel);
         var fragment = document.createDocumentFragment();
