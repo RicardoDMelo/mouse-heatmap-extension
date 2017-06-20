@@ -9,6 +9,7 @@
         apiKey: "AIzaSyCDndBcDzb3D7QRu70mqG1Ij_R8nMiDRy8",
         authDomain: "mouse-heatmap.firebaseapp.com",
         databaseURL: "https://mouse-heatmap.firebaseio.com",
+        storageBucket: "mouse-heatmap.appspot.com",
         projectId: "mouse-heatmap",
         messagingSenderId: "602527389876"
     };

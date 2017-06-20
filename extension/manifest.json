@@ -12,7 +12,10 @@
     "<all_urls>"
   ],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": [
+      "util.js",
+      "background.js"
+    ],
     "persistent": true
   },
   "content_scripts": [{

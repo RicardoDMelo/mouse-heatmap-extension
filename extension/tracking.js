@@ -5,6 +5,7 @@
     var timerSync = null;
     var trackingData = [];
     var authChangedCalled = false;
+    var currentPrintUrl = null;
     var currentMousePosition = {
         x: 0,
         y: 0
@@ -27,103 +28,52 @@
             };
         };
 
+        timerMouseMovement = setInterval(function () {
+            if (lastMousePosition != currentMousePosition) {
+                pushNewEvent(1, 'mouse');
+                lastMousePosition = currentMousePosition;
+                lastScrollPosition = currentScrollPosition;
+            }
+        }, 100);
+
+        document.body.onscroll = function trackingScrollEvent(ev) {
+            currentScrollPosition = document.body.scrollTop;
+            if (lastScrollPosition != currentScrollPosition) {
+                pushNewEvent(2, 'scroll');
+                lastScrollPosition = currentScrollPosition;
+            }
+        };
+
         document.body.onclick = function trackingClickEvent(ev) {
             currentMousePosition = {
                 x: ev.layerX,
                 y: ev.layerY,
             };
-            trackingData.push({
-                eventType: 3,
-                eventDescription: 'click',
-                timestamp: +new Date(),
-                x: currentMousePosition.x,
-                y: currentMousePosition.y,
-                scroll: currentScrollPosition,
-                height: document.body.scrollHeight,
-                width: document.body.scrollWidth,
-                path: window.location.pathname + window.location.hash + window.location.search
-            });
+            pushNewEvent(3, 'click');
         };
 
         window.onfocus = function trackingFocusEvent(ev) {
-            trackingData.push({
-                eventType: 4,
-                eventDescription: 'focus',
-                timestamp: +new Date(),
-                x: currentMousePosition.x,
-                y: currentMousePosition.y,
-                scroll: currentScrollPosition,
-                height: document.body.scrollHeight,
-                width: document.body.scrollWidth,
-                path: window.location.pathname + window.location.hash + window.location.search
-            });
+            pushNewEvent(4, 'focus');
         };
 
         window.onblur = function trackingBlurEvent(ev) {
-            trackingData.push({
-                eventType: 5,
-                eventDescription: 'blur',
-                timestamp: +new Date(),
-                x: currentMousePosition.x,
-                y: currentMousePosition.y,
-                scroll: currentScrollPosition,
-                height: document.body.scrollHeight,
-                width: document.body.scrollWidth,
-                path: window.location.pathname + window.location.hash + window.location.search
-            });
+            pushNewEvent(5, 'blur');
         };
 
-        document.body.onscroll = function trackingScrollEvent(ev) {
-            currentScrollPosition = document.body.scrollTop;
-            if (lastScrollPosition != currentScrollPosition) {
-                trackingData.push({
-                    eventType: 2,
-                    eventDescription: 'scroll',
-                    timestamp: +new Date(),
-                    x: currentMousePosition.x,
-                    y: currentMousePosition.y,
-                    scroll: currentScrollPosition,
-                    height: document.body.scrollHeight,
-                    width: document.body.scrollWidth,
-                    path: window.location.pathname + window.location.hash + window.location.search
-                });
-                lastScrollPosition = currentScrollPosition;
-            }
-        };
 
-        timerMouseMovement = setInterval(function () {
-            if (lastMousePosition != currentMousePosition) {
-                util.log(currentMousePosition.x + ':' + currentMousePosition.y);
-                trackingData.push({
-                    eventType: 1,
-                    eventDescription: 'mouse',
-                    timestamp: +new Date(),
-                    x: currentMousePosition.x,
-                    y: currentMousePosition.y,
-                    scroll: currentScrollPosition,
-                    height: document.body.scrollHeight,
-                    width: document.body.scrollWidth,
-                    path: window.location.pathname + window.location.hash + window.location.search
-                });
-
-                lastMousePosition = currentMousePosition;
-                lastScrollPosition = currentScrollPosition;
-            }
-        }, 100);
-        var preview = document.createElement('img');
-        preview.id = 'preview-print';
-        preview.style.position = 'fixed';
-        preview.style.bottom = '0';
-        preview.style.right = '0';
-        preview.style.border = '3px black solid';
-        preview.style.width = '300px';
-        preview.style.height = '300px';
-        preview.style.zIndex = '999';
-        preview.crossOrigin = 'Anonymous';
-        document.getElementsByTagName('body')[0].appendChild(preview);
 
         chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-            preview.src = msg.dataUrl;
+            var storage = firebase.storage();
+            var storageRef = storage.ref();
+            var imageRef = storageRef.child('images/' + sessionToken + '-' + currentScrollPosition + '.jpg');
+            var blob = util.b64toBlob(msg.dataUrl.substr(23));
+            var uploadTask = imageRef.put(blob);
+            uploadTask.on('state_changed', function (snapshot) {}, function (error) {
+                util.error(error);
+            }, function () {
+                util.log('Upload completed: ' + uploadTask.snapshot.downloadURL);
+                currentPrintUrl = uploadTask.snapshot.downloadURL;
+            });
         });
 
         timerSync = setInterval(function () {
@@ -174,6 +124,22 @@
         lastScrollPosition = document.body.scrollTop;
         sessionToken = null;
         uid = null;
+        currentPrintUrl = null;
+    }
+
+    var pushNewEvent = function (typeId, typeDescription) {
+        trackingData.push({
+            eventType: typeId,
+            eventDescription: typeDescription,
+            timestamp: +new Date(),
+            x: currentMousePosition.x,
+            y: currentMousePosition.y,
+            scroll: currentScrollPosition,
+            height: document.body.scrollHeight,
+            width: document.body.scrollWidth,
+            path: window.location.pathname + window.location.hash + window.location.search,
+            printUrl: currentPrintUrl
+        });
     }
 
     firebase.auth().onAuthStateChanged(function (user) {
