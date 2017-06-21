@@ -71,10 +71,10 @@
         };
 
         chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+            var printHeight = currentScrollPosition;
             var storage = firebase.storage();
             var storageRef = storage.ref();
-            var imageRef = storageRef.child('images/' + sessionToken + '-' + currentScrollPosition + '.jpg');
-            var printHeight = currentScrollPosition;
+            var imageRef = storageRef.child('images/' + sessionToken + '-' + printHeight + '.jpg');
             imageRef.getDownloadURL()
                 .then(function (url) {
                     util.log('Print already exists: ' + url);
@@ -92,7 +92,7 @@
                         var ref = firebase.database().ref();
                         var eventRef = ref.child('prints/' + domainName + '/' + uid + '/' + sessionToken);
                         eventRef.push({
-                            url: currentPrintUrl,
+                            path: 'images/' + sessionToken + '-' + printHeight + '.jpg',
                             height: printHeight
                         });
                     });
