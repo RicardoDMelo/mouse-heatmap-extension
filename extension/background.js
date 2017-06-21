@@ -26,7 +26,7 @@
 
 
     var onUpdatedListener = function (tabId, changeInfo, tab) {
-        if (changeInfo.status === 'complete') {
+        if (changeInfo.status === 'complete' || changeInfo.status === 'loading') {
             var url = tab.url.split('#')[0];
             if (pattern.test(url)) {
                 if (tab.active == true) {
