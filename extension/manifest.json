@@ -3,7 +3,7 @@
   "manifest_version": 2,
   "name": "Tracking para Estudo de Usabilidade",
   "short_name": "Estudo de Usabilidade",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "icons": {
     "128": "icons/icon.png"
   },

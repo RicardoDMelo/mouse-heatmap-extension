@@ -97,7 +97,7 @@
                         y: element.y,
                         value: 30
                     });
-                    var preview = document.createElement('div');                    
+                    var preview = document.createElement('div');
                     preview.style.position = 'absolute';
                     preview.style.top = element.y + 'px';
                     preview.style.left = element.x + 'px';
@@ -113,14 +113,19 @@
         firebase.database().ref('/prints/' + siteSelected + '/' + userSelected + '/' + sessionSelected).once('value')
             .then(function (snapshot) {
                 var prints = util.valuesToArray(snapshot.val());
+                var storageRef = firebase.storage().ref();
                 prints.forEach(function (element) {
-                    var preview = document.createElement('img');                    
-                    preview.style.position = 'absolute';
-                    preview.style.top = element.height + 'px';
-                    preview.style.left = '0';
-                    preview.style.zIndex = '-2';
-                    preview.src = element.url;
-                    document.getElementById('heatmap-container').appendChild(preview);
+                    var imageRef = storageRef.child(element.path);
+                    imageRef.getDownloadURL()
+                        .then(function (url) {
+                            var preview = document.createElement('img');
+                            preview.style.position = 'absolute';
+                            preview.style.top = element.height + 'px';
+                            preview.style.left = '0';
+                            preview.style.zIndex = '-2';
+                            preview.src = url;
+                            document.getElementById('heatmap-container').appendChild(preview);
+                        });
                 }, this);
             })
     }
