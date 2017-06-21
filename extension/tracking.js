@@ -18,7 +18,7 @@
     var lastScrollPosition = document.body.scrollTop;
     var sessionToken = null;
     var uid = null;
-    var domainName = util.replaceAll(window.location.hostname, ".", "-")
+    var domainName = util.replaceAll(util.replaceAll(window.location.hostname + window.location.pathname + window.location.hash, ".", "-"), '/', '-')
 
     var startTracking = function () {
         document.body.onmousemove = function trackingMouseEvent(ev) {
@@ -26,15 +26,16 @@
                 x: ev.pageX,
                 y: ev.pageY,
             };
+            pushNewEvent(1, 'mouse');
         };
 
-        timerMouseMovement = setInterval(function () {
-            if (lastMousePosition != currentMousePosition) {
-                pushNewEvent(1, 'mouse');
-                lastMousePosition = currentMousePosition;
-                lastScrollPosition = currentScrollPosition;
-            }
-        }, 200);
+        // timerMouseMovement = setInterval(function () {
+        //     if (lastMousePosition != currentMousePosition) {
+        //         pushNewEvent(1, 'mouse');
+        //         lastMousePosition = currentMousePosition;
+        //         lastScrollPosition = currentScrollPosition;
+        //     }
+        // }, 200);
 
         var scrollTimer = null;
         document.body.onscroll = function trackingScrollEvent(ev) {
@@ -59,7 +60,11 @@
                 x: ev.pageX,
                 y: ev.pageY,
             };
+            chrome.runtime.sendMessage({
+                message: 'print'
+            });
             pushNewEvent(3, 'click');
+            sendData();
         };
 
         window.onfocus = function trackingFocusEvent(ev) {
@@ -100,27 +105,8 @@
         });
 
         timerSync = setInterval(function () {
-            if (trackingData.length > 0) {
-                var dataCopy = trackingData.slice();
-                var updatedData = {};
-                trackingData = [];
-                var ref = firebase.database().ref();
-
-                updatedData['sites/' + domainName] = true;
-                updatedData['users/' + domainName + '/' + uid] = true;
-                updatedData['sessions/' + domainName + '/' + uid + '/' + sessionToken] = true;
-                ref.update(updatedData, function (er) {
-                    if (er) {
-                        util.error(er);
-                    }
-                });
-
-                var eventRef = ref.child('events/' + domainName + '/' + uid + '/' + sessionToken);
-                for (var i = 0; i < dataCopy.length; i++) {
-                    eventRef.push(dataCopy[i]);
-                }
-            }
-        }, 1000);
+            sendData();
+        }, 100);
     }
 
     var cancelTracking = function () {
@@ -150,6 +136,29 @@
         currentPrintUrl = null;
     }
 
+    var sendData = function () {
+        if (trackingData.length > 0) {
+            var dataCopy = trackingData.slice();
+            var updatedData = {};
+            trackingData = [];
+            var ref = firebase.database().ref();
+
+            updatedData['sites/' + domainName] = true;
+            updatedData['users/' + domainName + '/' + uid] = true;
+            updatedData['sessions/' + domainName + '/' + uid + '/' + sessionToken] = true;
+            ref.update(updatedData, function (er) {
+                if (er) {
+                    util.error(er);
+                }
+            });
+
+            var eventRef = ref.child('events/' + domainName + '/' + uid + '/' + sessionToken);
+            for (var i = 0; i < dataCopy.length; i++) {
+                eventRef.push(dataCopy[i]);
+            }
+        }
+    }
+
     var pushNewEvent = function (typeId, typeDescription) {
         trackingData.push({
             eventType: typeId,
@@ -160,7 +169,8 @@
             scroll: currentScrollPosition,
             height: document.body.scrollHeight,
             width: document.body.scrollWidth,
-            path: window.location.pathname + window.location.hash + window.location.search
+            windowHeight: window.innerHeight,
+            windowWidth: window.innerWidth,
         });
     }
 

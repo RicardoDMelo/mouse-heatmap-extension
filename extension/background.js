@@ -17,6 +17,7 @@
                 quality: 8
             },
             function (dataUrl) {
+                util.log('Sending print to content script.');
                 chrome.tabs.sendMessage(tabId, {
                     dataUrl: dataUrl
                 });

@@ -2,7 +2,7 @@
 "use strict";
 
 var component = (function () {
-    
+
     var bindSelect = function (sel, list) {
         clearSelect(sel);
         var fragment = document.createDocumentFragment();
@@ -18,6 +18,7 @@ var component = (function () {
             opt.value = item;
             fragment.appendChild(opt);
         });
+        sel.size = list.length + 1;
         sel.appendChild(fragment);
     }
 
@@ -26,8 +27,15 @@ var component = (function () {
         sel.selectedIndex = 0;
     }
 
+    var clearContainer = function (container) {
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+    }
+
     return {
         bindSelect: bindSelect,
-        clearSelect: clearSelect
+        clearSelect: clearSelect,
+        clearContainer: clearContainer
     }
 }());

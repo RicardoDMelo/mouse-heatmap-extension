@@ -5,4 +5,42 @@ body {
 select {
   min-width: 200px;
   max-width: 200px;
+  max-height: 300px;
   margin-top: 10px; }
+
+input,
+label {
+  display: block; }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 10px; }
+
+.filters {
+  border: 1px solid #a2a2a2;
+  margin: 10px;
+  overflow: auto; }
+
+#window-container {
+  overflow: auto;
+  resize: both; }
+
+.select-container {
+  margin: 10px 20px;
+  float: left; }
+
+#conn-status {
+  margin: 10px 30px;
+  font-weight: 600; }
+
+.clear {
+  clear: both; }
+
+#generate-heat {
+  margin: 37px 20px;
+  height: 30px;
+  width: 80px; }

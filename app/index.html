@@ -21,24 +21,31 @@
 <body>
   <h1>Tracking Review</h1>
   <span id="conn-status">Loading Firebase...</span>
-  <div style="margin-top: 10px">
-    <label for="sites-list">Sites</label>
-    <select id="sites-list"></select>
-  </div>
+  <br class="clear" />
+  <div class="filters">
+    <div class="select-container">
+      <label for="sites-list">Sites</label>
+      <select id="sites-list"></select>
+    </div>
 
-  <div>
-    <label for="users-list">Users</label>
-    <select id="users-list"></select>
-  </div>
+    <div class="select-container">
+      <label for="users-list">Users</label>
+      <select id="users-list"></select>
+    </div>
 
-  <div>
-    <label for="sessions-list">Sessions</label>
-    <select id="sessions-list"></select>
+    <div class="select-container">
+      <label for="sessions-list">Sessions</label>
+      <select id="sessions-list"></select>
+    </div>
+    <button id="generate-heat" disabled>Gerar</button>
   </div>
+  <br class="clear" />
+
 
   <h2>Heatmap</h2>
-  <div id="heatmap-container">
-
+  <div id="window-container">
+    <div id="heatmap-container">
+    </div>
   </div>
 
   <h2>Events</h2>
