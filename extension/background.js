@@ -21,6 +21,7 @@
                 chrome.tabs.sendMessage(tabId, {
                     dataUrl: dataUrl
                 });
+                dataUrl = null;
             }
         );
     }

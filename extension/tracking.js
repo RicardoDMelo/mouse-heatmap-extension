@@ -27,6 +27,7 @@
                 y: ev.pageY,
             };
             pushNewEvent(1, 'mouse');
+            return;
         };
 
         // timerMouseMovement = setInterval(function () {
@@ -46,12 +47,12 @@
 
                 if (scrollTimer !== null) {
                     clearTimeout(scrollTimer);
+                    scrollTimer = null;
                 }
-                scrollTimer = setTimeout(function () {
-                    chrome.runtime.sendMessage({
-                        message: 'print'
-                    });
-                }, 150);
+                scrollTimer = setTimeout(function () {}, 100);
+                chrome.runtime.sendMessage({
+                    message: 'print'
+                });
             }
         };
 
@@ -77,9 +78,7 @@
 
         chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             var printHeight = currentScrollPosition;
-            var storage = firebase.storage();
-            var storageRef = storage.ref();
-            var imageRef = storageRef.child('images/' + sessionToken + '-' + printHeight + '.jpg');
+            var imageRef = firebase.storage().ref().child('images/' + sessionToken + '-' + printHeight + '.jpg');
             imageRef.getDownloadURL()
                 .then(function (url) {
                     util.log('Print already exists: ' + url);
@@ -87,6 +86,7 @@
                 })
                 .catch(function () {
                     var blob = util.b64toBlob(msg.dataUrl.substr(23));
+                    msg.dataUrl = null;
                     var uploadTask = imageRef.put(blob);
                     uploadTask.on('state_changed', function (snapshot) {}, function (error) {
                         util.error(error);
@@ -100,7 +100,12 @@
                             path: 'images/' + sessionToken + '-' + printHeight + '.jpg',
                             height: printHeight
                         });
+                        printHeight = null;
+                        blob = null;
+                        imageRef = null;
+                        ref = null;
                     });
+                    return;
                 });
         });
 
@@ -156,7 +161,12 @@
             for (var i = 0; i < dataCopy.length; i++) {
                 eventRef.push(dataCopy[i]);
             }
+            dataCopy[];
+            updatedData = {};
+            ref = null;
+            eventRef = null;
         }
+        return;
     }
 
     var pushNewEvent = function (typeId, typeDescription) {
