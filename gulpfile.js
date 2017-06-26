@@ -87,10 +87,6 @@ gulp.task('connect', function () {
     });
 });
 
-gulp.task('serve', function (callback) {
-    runSequence('build', 'connect', 'watch', 'open', callback);
-});
-
 gulp.task('watch-debug', function () {
     gulp.watch([paths.all], ['sass', 'reload']);
 });
@@ -103,6 +99,6 @@ gulp.task('connect-debug', function () {
     });
 });
 
-gulp.task('debug', function (callback) {
+gulp.task('serve', function (callback) {
     runSequence('sass', 'connect-debug', 'watch-debug', 'open', callback);
 });

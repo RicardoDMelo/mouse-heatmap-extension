@@ -75,11 +75,11 @@
                     generateHeatMap(events);
                 })
 
-            firebase.database().ref('/prints/' + siteSelected + '/' + userSelected + '/' + sessionSelected).once('value')
-                .then(function (snapshot) {
-                    var prints = util.valuesToArray(snapshot.val());
-                    displayPrints(prints);
-                })
+            // firebase.database().ref('/prints/' + siteSelected + '/' + userSelected + '/' + sessionSelected).once('value')
+            //     .then(function (snapshot) {
+            //         var prints = util.valuesToArray(snapshot.val());
+            //         displayPrints(prints);
+            //     })
         } else if (userSelected != 'null') {
             firebase.database().ref('/events/' + siteSelected + '/' + userSelected).once('value')
                 .then(function (snapshot) {
@@ -91,15 +91,15 @@
                     generateHeatMap(events);
                 })
 
-            firebase.database().ref('/prints/' + siteSelected + '/' + userSelected).once('value')
-                .then(function (snapshot) {
-                    var printsSessions = util.valuesToArray(snapshot.val());
-                    var prints = [];
-                    printsSessions.forEach(function (element) {
-                        prints = prints.concat(util.valuesToArray(element));
-                    });
-                    displayPrints(prints);
-                })
+            // firebase.database().ref('/prints/' + siteSelected + '/' + userSelected).once('value')
+            //     .then(function (snapshot) {
+            //         var printsSessions = util.valuesToArray(snapshot.val());
+            //         var prints = [];
+            //         printsSessions.forEach(function (element) {
+            //             prints = prints.concat(util.valuesToArray(element));
+            //         });
+            //         displayPrints(prints);
+            //     })
         } else {
             firebase.database().ref('/events/' + siteSelected).once('value')
                 .then(function (snapshot) {
@@ -115,19 +115,19 @@
                     generateHeatMap(events);
                 })
 
-            firebase.database().ref('/prints/' + siteSelected).once('value')
-                .then(function (snapshot) {
-                    var printsUsers = util.valuesToArray(snapshot.val());
-                    var printSessions = [];
-                    var prints = [];
-                    printsUsers.forEach(function (sessionsTmp) {
-                        printSessions = printSessions.concat(util.valuesToArray(sessionsTmp));
-                    });
-                    printSessions.forEach(function (element) {
-                        prints = prints.concat(util.valuesToArray(element));
-                    });
-                    displayPrints(prints);
-                })
+            // firebase.database().ref('/prints/' + siteSelected).once('value')
+            //     .then(function (snapshot) {
+            //         var printsUsers = util.valuesToArray(snapshot.val());
+            //         var printSessions = [];
+            //         var prints = [];
+            //         printsUsers.forEach(function (sessionsTmp) {
+            //             printSessions = printSessions.concat(util.valuesToArray(sessionsTmp));
+            //         });
+            //         printSessions.forEach(function (element) {
+            //             prints = prints.concat(util.valuesToArray(element));
+            //         });
+            //         displayPrints(prints);
+            //     })
         }
     }
 
@@ -159,14 +159,8 @@
         trackingLog.textContent = eventsJson;
 
         component.clearContainer(container);
-        // if (eventsMove[0].windowWidth > window.innerWidth * 0.8) {
-        //     var newWidth = window.innerWidth * 0.8;
-        //     windowContainer.style.width = newWidth + 'px';
-        //     windowContainer.style.height = ((newWidth * eventsMove[0].windowHeight) / eventsMove[0].windowWidth) + 'px';
-        // } else {
         windowContainer.style.width = eventsMove[0].windowWidth + 'px';
         windowContainer.style.height = eventsMove[0].windowHeight + 'px';
-        // }
         container.style.width = eventsMove[0].width + 'px';
         container.style.height = eventsMove[0].height + 'px';
 
