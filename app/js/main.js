@@ -14,6 +14,9 @@
     var sites = [];
     var users = [];
     var sessions = [];
+    var heatmapInstance = null;
+    var userSampleSize = 5;
+    var sessionSampleSize = 5;
 
     var getWebsites = function () {
         var siteList = document.getElementById('sites-list');
@@ -69,10 +72,11 @@
         var userSelected = userList.selectedIndex > 0 ? userList.options[userList.selectedIndex].value : 'null';
         var sessionSelected = sessionList.selectedIndex > 0 ? sessionList.options[sessionList.selectedIndex].value : 'null';
         if (sessionSelected != 'null') {
+            generateHeatMap();
             firebase.database().ref('/events/' + siteSelected + '/' + userSelected + '/' + sessionSelected).once('value')
                 .then(function (snapshot) {
                     var events = util.valuesToArray(snapshot.val());
-                    generateHeatMap(events);
+                    addDataToHeatmap(events);
                 })
 
             // firebase.database().ref('/prints/' + siteSelected + '/' + userSelected + '/' + sessionSelected).once('value')
@@ -81,14 +85,25 @@
             //         displayPrints(prints);
             //     })
         } else if (userSelected != 'null') {
-            firebase.database().ref('/events/' + siteSelected + '/' + userSelected).once('value')
-                .then(function (snapshot) {
-                    var eventSessions = util.valuesToArray(snapshot.val());
-                    var events = [];
-                    eventSessions.forEach(function (element) {
-                        events = events.concat(util.valuesToArray(element));
+            heatmapInstance = null;
+            //Recuperar sessões do usuário
+            firebase.database().ref('/sessions/' + siteSelected + '/' + userSelected).once('value')
+                .then(function (snapshotSessions) {
+                    var sessions = Object.keys(snapshotSessions.val());
+                    sessions = _.sample(sessions, sessions.length > sessionSampleSize ? sessionSampleSize : sessions.length);
+                    sessions.forEach(function (sessionTmp) {
+                        //Recuperar eventos da sessão
+                        firebase.database().ref('/events/' + siteSelected + '/' + userSelected + '/' + sessionTmp).once('value')
+                            .then(function (snapshot) {
+                                var eventUsers = util.valuesToArray(snapshot.val());
+                                if (!heatmapInstance) {
+                                    generateHeatMap(eventUsers);
+                                } else {
+                                    addDataToHeatmap(eventUsers);
+                                }
+                            });
+
                     });
-                    generateHeatMap(events);
                 })
 
             // firebase.database().ref('/prints/' + siteSelected + '/' + userSelected).once('value')
@@ -101,20 +116,35 @@
             //         displayPrints(prints);
             //     })
         } else {
-            firebase.database().ref('/events/' + siteSelected).once('value')
-                .then(function (snapshot) {
-                    var eventUsers = util.valuesToArray(snapshot.val());
-                    var eventSessions = [];
-                    var events = [];
-                    eventUsers.forEach(function (sessionsTmp) {
-                        eventSessions = eventSessions.concat(util.valuesToArray(sessionsTmp));
-                    });
-                    eventSessions.forEach(function (element) {
-                        events = events.concat(util.valuesToArray(element));
-                    });
-                    generateHeatMap(events);
-                })
+            heatmapInstance = null;
+            //Recuperar usuários do site
+            firebase.database().ref('/users/' + siteSelected).once('value')
+                .then(function (snapshotUsers) {
+                    var users = Object.keys(snapshotUsers.val());
+                    users = _.sample(users, users.length > userSampleSize ? userSampleSize : users.length);
+                    users.forEach(function (userTmp) {
+                        //Recuperar sessões do usuário
+                        firebase.database().ref('/sessions/' + siteSelected + '/' + userTmp).once('value')
+                            .then(function (snapshotSessions) {
+                                var sessions = Object.keys(snapshotSessions.val());
+                                sessions = _.sample(sessions, sessions.length > sessionSampleSize ? sessionSampleSize : sessions.length);
+                                sessions.forEach(function (sessionTmp) {
+                                    //Recuperar eventos da sessão
+                                    firebase.database().ref('/events/' + siteSelected + '/' + userTmp + '/' + sessionTmp).once('value')
+                                        .then(function (snapshot) {
+                                            var eventUsers = util.valuesToArray(snapshot.val());
+                                            if (!heatmapInstance) {
+                                                generateHeatMap(eventUsers);
+                                            } else {
+                                                addDataToHeatmap(eventUsers);
+                                            }
+                                        });
 
+                                });
+                            })
+                    });
+
+                })
             // firebase.database().ref('/prints/' + siteSelected).once('value')
             //     .then(function (snapshot) {
             //         var printsUsers = util.valuesToArray(snapshot.val());
@@ -149,6 +179,22 @@
     }
 
     var generateHeatMap = function (events) {
+        component.clearContainer(container);
+        component.clearContainer(trackingLog);
+
+        windowContainer.style.width = events[0].windowWidth + 'px';
+        windowContainer.style.height = events[0].windowHeight + 'px';
+        container.style.width = events[0].width + 'px';
+        container.style.height = events[0].height + 'px';
+
+        heatmapInstance = h337.create({
+            container: container,
+            radius: 50
+        });
+        addDataToHeatmap(events);
+    }
+
+    var addDataToHeatmap = function (events) {
         var eventsMove = _.filter(events, function (el) {
             return el.eventType == 1;
         });
@@ -156,18 +202,8 @@
             return el.eventType == 3;
         });
         var eventsJson = JSON.stringify(events, null, 4);
-        trackingLog.textContent = eventsJson;
-
-        component.clearContainer(container);
-        windowContainer.style.width = eventsMove[0].windowWidth + 'px';
-        windowContainer.style.height = eventsMove[0].windowHeight + 'px';
-        container.style.width = eventsMove[0].width + 'px';
-        container.style.height = eventsMove[0].height + 'px';
-
-        var heatmapInstance = h337.create({
-            container: container,
-            radius: 50
-        });
+        var content = document.createTextNode(eventsJson);
+        trackingLog.appendChild(content);
 
         var lastX = null;
         var lastY = null;

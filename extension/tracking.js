@@ -26,17 +26,17 @@
                 x: ev.pageX,
                 y: ev.pageY,
             };
-            pushNewEvent(1, 'mouse');
+            // pushNewEvent(1, 'mouse');
             return;
         };
 
-        // timerMouseMovement = setInterval(function () {
-        //     if (lastMousePosition != currentMousePosition) {
-        //         pushNewEvent(1, 'mouse');
-        //         lastMousePosition = currentMousePosition;
-        //         lastScrollPosition = currentScrollPosition;
-        //     }
-        // }, 200);
+        timerMouseMovement = setInterval(function () {
+            if (lastMousePosition != currentMousePosition) {
+                pushNewEvent(1, 'mouse');
+                lastMousePosition = currentMousePosition;
+                lastScrollPosition = currentScrollPosition;
+            }
+        }, 250);
 
         var scrollTimer = null;
         document.body.onscroll = function trackingScrollEvent(ev) {
@@ -85,26 +85,28 @@
                     currentPrintUrl = url;
                 })
                 .catch(function () {
-                    var blob = util.b64toBlob(msg.dataUrl.substr(23));
-                    msg.dataUrl = null;
-                    var uploadTask = imageRef.put(blob);
-                    uploadTask.on('state_changed', function (snapshot) {}, function (error) {
-                        util.error(error);
-                    }, function () {
-                        util.log('Upload completed: ' + uploadTask.snapshot.downloadURL);
-                        currentPrintUrl = uploadTask.snapshot.downloadURL;
+                    if (msg && msg.dataUrl) {
+                        var blob = util.b64toBlob(msg.dataUrl.substr(23));
+                        msg.dataUrl = null;
+                        var uploadTask = imageRef.put(blob);
+                        uploadTask.on('state_changed', function (snapshot) {}, function (error) {
+                            util.error(error);
+                        }, function () {
+                            util.log('Upload completed: ' + uploadTask.snapshot.downloadURL);
+                            currentPrintUrl = uploadTask.snapshot.downloadURL;
 
-                        var ref = firebase.database().ref();
-                        var eventRef = ref.child('prints/' + domainName + '/' + uid + '/' + sessionToken);
-                        eventRef.push({
-                            path: 'images/' + sessionToken + '-' + printHeight + '.jpg',
-                            height: printHeight
+                            var ref = firebase.database().ref();
+                            var eventRef = ref.child('prints/' + domainName + '/' + uid + '/' + sessionToken);
+                            eventRef.push({
+                                path: 'images/' + sessionToken + '-' + printHeight + '.jpg',
+                                height: printHeight
+                            });
+                            printHeight = null;
+                            blob = null;
+                            imageRef = null;
+                            ref = null;
                         });
-                        printHeight = null;
-                        blob = null;
-                        imageRef = null;
-                        ref = null;
-                    });
+                    }
                     return;
                 });
         });
@@ -161,7 +163,7 @@
             for (var i = 0; i < dataCopy.length; i++) {
                 eventRef.push(dataCopy[i]);
             }
-            dataCopy[];
+            dataCopy = [];
             updatedData = {};
             ref = null;
             eventRef = null;
