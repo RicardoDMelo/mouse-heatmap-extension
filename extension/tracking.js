@@ -18,6 +18,7 @@
     var lastScrollPosition = document.body.scrollTop;
     var sessionToken = null;
     var uid = null;
+    var realUrl = window.location.hostname + window.location.pathname + window.location.hash;
     var domainName = util.replaceAll(util.replaceAll(window.location.hostname + window.location.pathname + window.location.hash, ".", "-"), '/', '-')
 
     var startTracking = function () {
@@ -150,7 +151,7 @@
             trackingData = [];
             var ref = firebase.database().ref();
 
-            updatedData['sites/' + domainName] = true;
+            updatedData['sites/' + domainName] = realUrl;
             updatedData['users/' + domainName + '/' + uid] = true;
             updatedData['sessions/' + domainName + '/' + uid + '/' + sessionToken] = true;
             ref.update(updatedData, function (er) {

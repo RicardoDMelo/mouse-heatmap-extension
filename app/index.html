@@ -37,6 +37,11 @@
       <label for="sessions-list">Sessions</label>
       <select id="sessions-list"></select>
     </div>
+
+    <div class="checkbox-container">
+      <input type="checkbox" id="use-frame"></input>
+      <label for="use-frame">Try to use frame</label>
+    </div>
     <button id="generate-heat" disabled>Gerar</button>
   </div>
   <br class="clear" />
@@ -65,6 +70,7 @@
   <!-- build:js js/app.min.js -->
   <script src="js/component.js"></script>
   <script src="js/util.js"></script>
+  <script src="js/access.js"></script>
   <script src="js/connection.js"></script>
   <script src="js/main.js"></script>
   <!-- endbuild -->

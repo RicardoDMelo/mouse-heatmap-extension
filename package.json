@@ -39,6 +39,7 @@
     "run-sequence": "^1.2.2"
   },
   "dependencies": {
+    "firebase-tools": "^3.9.1",
     "heatmap.js": "^2.0.5",
     "jquery": "^3.2.1",
     "underscore": "^1.8.3"

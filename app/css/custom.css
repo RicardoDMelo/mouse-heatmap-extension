@@ -33,6 +33,13 @@ h6 {
   margin: 10px 20px;
   float: left; }
 
+.checkbox-container {
+  margin: 37px 20px;
+  float: left; }
+
+.checkbox-container > * {
+  display: inline-block; }
+
 #conn-status {
   margin: 10px 30px;
   font-weight: 600; }

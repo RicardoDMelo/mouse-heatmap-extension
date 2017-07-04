@@ -27,6 +27,7 @@ var util = (function () {
     };
 
     var valuesToArray = function (obj) {
+        if (!obj) return [];
         return Object.keys(obj).map(function (key) {
             return obj[key];
         });

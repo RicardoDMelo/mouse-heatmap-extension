@@ -22,6 +22,26 @@ var component = (function () {
         sel.appendChild(fragment);
     }
 
+    var bindSelectWithAlias = function (sel, list, alias) {
+        clearSelect(sel);
+        var fragment = document.createDocumentFragment();
+
+        var opt = document.createElement('option');
+        opt.innerHTML = '-';
+        opt.value = null;
+        fragment.appendChild(opt);
+
+        for(var i = 0; i < list.length; i++){
+            var opt = document.createElement('option');
+            opt.innerHTML = alias[i];
+            opt.value = list[i];
+            fragment.appendChild(opt);
+        }
+        
+        sel.size = list.length + 1;
+        sel.appendChild(fragment);
+    }
+
     var clearSelect = function (sel) {
         sel.options.length = 0;
         sel.selectedIndex = 0;
@@ -35,6 +55,7 @@ var component = (function () {
 
     return {
         bindSelect: bindSelect,
+        bindSelectWithAlias: bindSelectWithAlias,
         clearSelect: clearSelect,
         clearContainer: clearContainer
     }

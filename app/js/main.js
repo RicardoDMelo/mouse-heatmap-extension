@@ -11,6 +11,7 @@
     var buttonEvents = document.getElementById('generate-heat');
     var windowContainer = document.getElementById('window-container');
     var container = document.getElementById('heatmap-container');
+    var useFrame = document.getElementById('use-frame');
     var sites = [];
     var users = [];
     var sessions = [];
@@ -21,12 +22,13 @@
     var getWebsites = function () {
         var siteList = document.getElementById('sites-list');
 
-        firebase.database().ref('/sites').once('value')
-            .then(function (snapshot) {
+        access.getSitesObject()
+            .then(function (sites) {
+                var values = Object.keys(sites);
+                var alias = util.valuesToArray(sites);
                 util.log("Firebase connected.");
                 connStatus.textContent = 'Firebase connected.';
-                sites = Object.keys(snapshot.val());
-                component.bindSelect(siteList, sites);
+                component.bindSelectWithAlias(siteList, values, alias);
                 siteList.onchange = onSiteChanged;
             })
     }
@@ -37,9 +39,8 @@
         var siteSelected = siteList.selectedIndex > 0 ? siteList.options[siteList.selectedIndex].value : 'null';
 
         if (siteSelected != 'null') {
-            firebase.database().ref('/users/' + siteSelected).once('value')
-                .then(function (snapshot) {
-                    users = Object.keys(snapshot.val());
+            access.getUsers(siteSelected)
+                .then(function (users) {
                     component.bindSelect(userList, users);
                     userList.onchange = onUserChanged;
                 })
@@ -57,9 +58,8 @@
         var userSelected = userList.selectedIndex > 0 ? userList.options[userList.selectedIndex].value : 'null';
 
         if (siteSelected != 'null' && userSelected != 'null') {
-            firebase.database().ref('/sessions/' + siteSelected + '/' + userSelected).once('value')
-                .then(function (snapshot) {
-                    sessions = Object.keys(snapshot.val());
+            access.getSessions(siteSelected, userSelected)
+                .then(function (sessions) {
                     component.bindSelect(sessionList, sessions);
                 })
         } else {
@@ -68,97 +68,151 @@
     }
 
     var getEvents = function () {
+        component.clearContainer(container);
+        component.clearContainer(trackingLog);
         var siteSelected = siteList.selectedIndex > 0 ? siteList.options[siteList.selectedIndex].value : 'null';
         var userSelected = userList.selectedIndex > 0 ? userList.options[userList.selectedIndex].value : 'null';
         var sessionSelected = sessionList.selectedIndex > 0 ? sessionList.options[sessionList.selectedIndex].value : 'null';
         if (sessionSelected != 'null') {
-            generateHeatMap();
-            firebase.database().ref('/events/' + siteSelected + '/' + userSelected + '/' + sessionSelected).once('value')
-                .then(function (snapshot) {
-                    var events = util.valuesToArray(snapshot.val());
-                    addDataToHeatmap(events);
-                })
+            heatmapInstance = null;
+            //Recuperar eventos do usuário
+            fetchEventsWithSession(siteSelected, userSelected, sessionSelected);
+            if (useFrame.checked == true) {
+                createFrame(siteSelected, userSelected, sessionSelected);
+            } else {
+                fetchPrintsWithSession(siteSelected, userSelected, sessionSelected);
+            }
 
-            // firebase.database().ref('/prints/' + siteSelected + '/' + userSelected + '/' + sessionSelected).once('value')
-            //     .then(function (snapshot) {
-            //         var prints = util.valuesToArray(snapshot.val());
-            //         displayPrints(prints);
-            //     })
         } else if (userSelected != 'null') {
             heatmapInstance = null;
-            //Recuperar sessões do usuário
-            firebase.database().ref('/sessions/' + siteSelected + '/' + userSelected).once('value')
-                .then(function (snapshotSessions) {
-                    var sessions = Object.keys(snapshotSessions.val());
-                    sessions = _.sample(sessions, sessions.length > sessionSampleSize ? sessionSampleSize : sessions.length);
-                    sessions.forEach(function (sessionTmp) {
-                        //Recuperar eventos da sessão
-                        firebase.database().ref('/events/' + siteSelected + '/' + userSelected + '/' + sessionTmp).once('value')
-                            .then(function (snapshot) {
-                                var eventUsers = util.valuesToArray(snapshot.val());
-                                if (!heatmapInstance) {
-                                    generateHeatMap(eventUsers);
-                                } else {
-                                    addDataToHeatmap(eventUsers);
-                                }
-                            });
-
-                    });
-                })
-
-            // firebase.database().ref('/prints/' + siteSelected + '/' + userSelected).once('value')
-            //     .then(function (snapshot) {
-            //         var printsSessions = util.valuesToArray(snapshot.val());
-            //         var prints = [];
-            //         printsSessions.forEach(function (element) {
-            //             prints = prints.concat(util.valuesToArray(element));
-            //         });
-            //         displayPrints(prints);
-            //     })
+            //Recuperar eventos do usuário
+            fetchEventsWithUser(siteSelected, userSelected);
+            if (useFrame.checked == true) {
+                createFrame(siteSelected, userSelected);
+            } else {
+                fetchPrintsWithUser(siteSelected, userSelected);
+            }
         } else {
             heatmapInstance = null;
-            //Recuperar usuários do site
-            firebase.database().ref('/users/' + siteSelected).once('value')
-                .then(function (snapshotUsers) {
-                    var users = Object.keys(snapshotUsers.val());
-                    users = _.sample(users, users.length > userSampleSize ? userSampleSize : users.length);
-                    users.forEach(function (userTmp) {
-                        //Recuperar sessões do usuário
-                        firebase.database().ref('/sessions/' + siteSelected + '/' + userTmp).once('value')
-                            .then(function (snapshotSessions) {
-                                var sessions = Object.keys(snapshotSessions.val());
-                                sessions = _.sample(sessions, sessions.length > sessionSampleSize ? sessionSampleSize : sessions.length);
-                                sessions.forEach(function (sessionTmp) {
-                                    //Recuperar eventos da sessão
-                                    firebase.database().ref('/events/' + siteSelected + '/' + userTmp + '/' + sessionTmp).once('value')
-                                        .then(function (snapshot) {
-                                            var eventUsers = util.valuesToArray(snapshot.val());
-                                            if (!heatmapInstance) {
-                                                generateHeatMap(eventUsers);
-                                            } else {
-                                                addDataToHeatmap(eventUsers);
-                                            }
-                                        });
-
-                                });
-                            })
-                    });
-
-                })
-            // firebase.database().ref('/prints/' + siteSelected).once('value')
-            //     .then(function (snapshot) {
-            //         var printsUsers = util.valuesToArray(snapshot.val());
-            //         var printSessions = [];
-            //         var prints = [];
-            //         printsUsers.forEach(function (sessionsTmp) {
-            //             printSessions = printSessions.concat(util.valuesToArray(sessionsTmp));
-            //         });
-            //         printSessions.forEach(function (element) {
-            //             prints = prints.concat(util.valuesToArray(element));
-            //         });
-            //         displayPrints(prints);
-            //     })
+            //Recuperar eventos do usuário
+            fetchEventsWithSite(siteSelected);
+            if (useFrame.checked == true) {
+                createFrame(siteSelected);
+            } else {
+                fetchPrintsWithSite(siteSelected);
+            }
         }
+    }
+
+    var createFrame = function (siteSelected, userSelected, sessionSelected) {
+        access.getRealUrl(siteSelected)
+            .then(function (url) {
+                util.log(url);
+
+                var preview = document.createElement('iframe');
+                preview.style.position = 'absolute';
+                preview.style.top = '0';
+                preview.style.left = '0';
+                preview.style.zIndex = '-2';
+                preview.style.width = container.style.width;
+                preview.style.height = container.style.height;
+                preview.src = 'https://' + url;
+                document.getElementById('heatmap-container').appendChild(preview);
+            })
+    }
+
+    var fetchEventsWithSession = function (siteSelected, userSelected, sessionSelected) {
+        //Recuperar eventos da sessão
+        access.getEvents(siteSelected, userSelected, sessionSelected)
+            .then(function (events) {
+                if (!heatmapInstance) {
+                    generateHeatMap(events);
+                } else {
+                    addDataToHeatmap(events);
+                }
+            })
+    }
+
+    var fetchEventsWithUser = function (siteSelected, userSelected) {
+        //Recuperar sessões do usuário
+        access.getSessions(siteSelected, userSelected)
+            .then(function (sessions) {
+                sessions = _.sample(sessions, sessions.length > sessionSampleSize ? sessionSampleSize : sessions.length);
+                sessions.forEach(function (sessionTmp) {
+                    //Recuperar eventos da sessão
+                    access.getEvents(siteSelected, userSelected, sessionTmp)
+                        .then(function (events) {
+                            if (!heatmapInstance) {
+                                generateHeatMap(events);
+                            } else {
+                                addDataToHeatmap(events);
+                            }
+                        });
+
+                });
+            })
+    }
+
+    var fetchEventsWithSite = function (siteSelected) {
+        //Recuperar usuários do site
+        access.getUsers(siteSelected)
+            .then(function (users) {
+                users = _.sample(users, users.length > userSampleSize ? userSampleSize : users.length);
+                users.forEach(function (userTmp) {
+                    //Recuperar sessões do usuário
+                    access.getSessions(siteSelected, userTmp)
+                        .then(function (sessions) {
+                            sessions = _.sample(sessions, sessions.length > sessionSampleSize ? sessionSampleSize : sessions.length);
+                            sessions.forEach(function (sessionTmp) {
+                                //Recuperar eventos da sessão
+                                access.getEvents(siteSelected, userTmp, sessionTmp)
+                                    .then(function (events) {
+                                        if (!heatmapInstance) {
+                                            generateHeatMap(events);
+                                        } else {
+                                            addDataToHeatmap(events);
+                                        }
+                                    });
+
+                            });
+                        })
+                });
+
+            })
+    }
+
+    var fetchPrintsWithSite = function (siteSelected) {
+        access.getPrints(siteSelected)
+            .then(function (printsUsers) {
+                var printSessions = [];
+                var prints = [];
+                printsUsers.forEach(function (sessionsTmp) {
+                    printSessions = printSessions.concat(util.valuesToArray(sessionsTmp));
+                });
+                printSessions.forEach(function (element) {
+                    prints = prints.concat(util.valuesToArray(element));
+                });
+                displayPrints(prints);
+            })
+    }
+
+    var fetchPrintsWithUser = function (siteSelected, userSelected) {
+        access.getPrints(siteSelected, userSelected)
+            .then(function (printsSessions) {
+                var prints = [];
+                printsSessions = _.sample(printsSessions, printsSessions.length > sessionSampleSize ? sessionSampleSize : printsSessions.length);
+                printsSessions.forEach(function (element) {
+                    prints = prints.concat(util.valuesToArray(element));
+                });
+                displayPrints(prints);
+            })
+    }
+
+    var fetchPrintsWithSession = function (siteSelected, userSelected, sessionSelected) {
+        access.getPrints(siteSelected, userSelected, sessionSelected)
+            .then(function (prints) {
+                displayPrints(prints);
+            })
     }
 
     var displayPrints = function (prints) {
@@ -179,9 +233,6 @@
     }
 
     var generateHeatMap = function (events) {
-        component.clearContainer(container);
-        component.clearContainer(trackingLog);
-
         windowContainer.style.width = events[0].windowWidth + 'px';
         windowContainer.style.height = events[0].windowHeight + 'px';
         container.style.width = events[0].width + 'px';
