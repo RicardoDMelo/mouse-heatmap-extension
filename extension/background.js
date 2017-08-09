@@ -10,20 +10,27 @@
         });
     // Create pattern for validation:
     var pattern = new RegExp(parsed.join('|'));
+    var sendingPrint = false;
 
     var printScreen = function (tabId) {
-        chrome.tabs.captureVisibleTab(
-            null, {
-                quality: 8
-            },
-            function (dataUrl) {
-                util.log('Sending print to content script.');
-                chrome.tabs.sendMessage(tabId, {
-                    dataUrl: dataUrl
-                });
-                dataUrl = null;
-            }
-        );
+        setTimeout(function () {
+            sendingPrint = false;
+        }, 500);
+        if (sendingPrint == false) {
+            sendingPrint = true;
+            chrome.tabs.captureVisibleTab(
+                null, {
+                    quality: 8
+                },
+                function (dataUrl) {
+                    util.log('Sending print to content script.');
+                    chrome.tabs.sendMessage(tabId, {
+                        dataUrl: dataUrl
+                    });
+                    dataUrl = null;
+                }
+            );
+        }
     }
 
 

@@ -3,7 +3,7 @@
   "manifest_version": 2,
   "name": "Tracking para Estudo de Usabilidade",
   "short_name": "Estudo de Usabilidade",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "icons": {
     "128": "icons/icon.png"
   },
@@ -21,9 +21,7 @@
   "content_scripts": [{
     "matches": [
       "*://*.promobit.com.br/*",
-      "*://*.reddit.com/*",
-      "*://*.uol.com.br/*",
-      "*://*.g1.globo.com/*"
+      "*://*.reddit.com/*"
     ],
     "js": [
       "firebase.js",

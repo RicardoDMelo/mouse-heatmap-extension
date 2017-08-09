@@ -123,7 +123,7 @@
 
     var fetchEventsWithSession = function (siteSelected, userSelected, sessionSelected) {
         //Recuperar eventos da sessão
-        access.getEvents(siteSelected, userSelected, sessionSelected)
+        access.getEventsFromSession(siteSelected, userSelected, sessionSelected)
             .then(function (events) {
                 if (!heatmapInstance) {
                     generateHeatMap(events);
@@ -134,50 +134,26 @@
     }
 
     var fetchEventsWithUser = function (siteSelected, userSelected) {
-        //Recuperar sessões do usuário
-        access.getSessions(siteSelected, userSelected)
-            .then(function (sessions) {
-                sessions = _.sample(sessions, sessions.length > sessionSampleSize ? sessionSampleSize : sessions.length);
-                sessions.forEach(function (sessionTmp) {
-                    //Recuperar eventos da sessão
-                    access.getEvents(siteSelected, userSelected, sessionTmp)
-                        .then(function (events) {
-                            if (!heatmapInstance) {
-                                generateHeatMap(events);
-                            } else {
-                                addDataToHeatmap(events);
-                            }
-                        });
-
-                });
+        //Recuperar eventos do usuário
+        access.getEventsFromUser(siteSelected, userSelected)
+            .then(function (events) {
+                if (!heatmapInstance) {
+                    generateHeatMap(events);
+                } else {
+                    addDataToHeatmap(events);
+                }
             })
     }
 
     var fetchEventsWithSite = function (siteSelected) {
-        //Recuperar usuários do site
-        access.getUsers(siteSelected)
-            .then(function (users) {
-                users = _.sample(users, users.length > userSampleSize ? userSampleSize : users.length);
-                users.forEach(function (userTmp) {
-                    //Recuperar sessões do usuário
-                    access.getSessions(siteSelected, userTmp)
-                        .then(function (sessions) {
-                            sessions = _.sample(sessions, sessions.length > sessionSampleSize ? sessionSampleSize : sessions.length);
-                            sessions.forEach(function (sessionTmp) {
-                                //Recuperar eventos da sessão
-                                access.getEvents(siteSelected, userTmp, sessionTmp)
-                                    .then(function (events) {
-                                        if (!heatmapInstance) {
-                                            generateHeatMap(events);
-                                        } else {
-                                            addDataToHeatmap(events);
-                                        }
-                                    });
-
-                            });
-                        })
-                });
-
+        //Recuperar eventos do site
+        access.getEventsFromSite(siteSelected)
+            .then(function (events) {
+                if (!heatmapInstance) {
+                    generateHeatMap(events);
+                } else {
+                    addDataToHeatmap(events);
+                }
             })
     }
 

@@ -2,8 +2,24 @@
 
 var access = (function () {
 
-    var getEvents = function (site, user, session) {
-        return firebase.database().ref('/events/' + site + '/' + user + '/' + session).once('value')
+    var getEventsFromSession = function (site, user, session) {
+        return firebase.database().ref('/sessionsevents/' + site + '/' + user + '/' + session).once('value')
+            .then(function (snapshot) {
+                var events = util.valuesToArray(snapshot.val());
+                return events;
+            });
+    }
+
+    var getEventsFromUser = function (site, user) {
+        return firebase.database().ref('/usersevents/' + site + '/' + user).once('value')
+            .then(function (snapshot) {
+                var events = util.valuesToArray(snapshot.val());
+                return events;
+            });
+    }
+
+    var getEventsFromSite = function (site) {
+        return firebase.database().ref('/sitesevents/' + site).once('value')
             .then(function (snapshot) {
                 var events = util.valuesToArray(snapshot.val());
                 return events;
@@ -78,7 +94,9 @@ var access = (function () {
     }
 
     return {
-        getEvents: getEvents,
+        getEventsFromSession: getEventsFromSession,
+        getEventsFromUser: getEventsFromUser,
+        getEventsFromSite: getEventsFromSite,
         getSessions: getSessions,
         getUsers: getUsers,
         getSites: getSites,

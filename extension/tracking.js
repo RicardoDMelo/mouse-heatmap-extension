@@ -37,7 +37,7 @@
                 lastMousePosition = currentMousePosition;
                 lastScrollPosition = currentScrollPosition;
             }
-        }, 250);
+        }, 300);
 
         var scrollTimer = null;
         document.body.onscroll = function trackingScrollEvent(ev) {
@@ -149,8 +149,12 @@
             var dataCopy = trackingData.slice();
             var updatedData = {};
             trackingData = [];
-            var ref = firebase.database().ref();
 
+            var ref = firebase.database().ref();
+            var siteRef = ref.child('sitesevents/' + domainName);
+            var userRef = ref.child('usersevents/' + domainName + '/' + uid);
+            var sessionRef = ref.child('sessionsevents/' + domainName + '/' + uid + '/' + sessionToken);
+            
             updatedData['sites/' + domainName] = realUrl;
             updatedData['users/' + domainName + '/' + uid] = true;
             updatedData['sessions/' + domainName + '/' + uid + '/' + sessionToken] = true;
@@ -160,14 +164,19 @@
                 }
             });
 
-            var eventRef = ref.child('events/' + domainName + '/' + uid + '/' + sessionToken);
             for (var i = 0; i < dataCopy.length; i++) {
-                eventRef.push(dataCopy[i]);
+                dataCopy[i].realUrl = realUrl
+                siteRef.push(dataCopy[i]);
+                userRef.push(dataCopy[i]);
+                sessionRef.push(dataCopy[i]);
             }
+
             dataCopy = [];
             updatedData = {};
             ref = null;
-            eventRef = null;
+            sessionRef = null;
+            userRef = null;
+            siteRef = null;
         }
         return;
     }
