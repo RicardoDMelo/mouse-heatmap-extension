@@ -2,7 +2,7 @@
   "name": "mouse-heatmap-extension",
   "version": "1.0.0",
   "description": "This project aims to receive data from an extension to make mouse trackign heatmaps.",
-  "main": "server/app.js",
+  "main": "node/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -39,6 +39,7 @@
     "run-sequence": "^1.2.2"
   },
   "dependencies": {
+    "firebase": "^4.3.0",
     "firebase-tools": "^3.9.1",
     "heatmap.js": "^2.0.5",
     "jquery": "^3.2.1",

@@ -37,7 +37,7 @@
                 lastMousePosition = currentMousePosition;
                 lastScrollPosition = currentScrollPosition;
             }
-        }, 300);
+        }, 150);
 
         var scrollTimer = null;
         document.body.onscroll = function trackingScrollEvent(ev) {
@@ -154,7 +154,7 @@
             var siteRef = ref.child('sitesevents/' + domainName);
             var userRef = ref.child('usersevents/' + domainName + '/' + uid);
             var sessionRef = ref.child('sessionsevents/' + domainName + '/' + uid + '/' + sessionToken);
-            
+
             updatedData['sites/' + domainName] = realUrl;
             updatedData['users/' + domainName + '/' + uid] = true;
             updatedData['sessions/' + domainName + '/' + uid + '/' + sessionToken] = true;
@@ -206,6 +206,16 @@
             sessionToken = user.refreshToken;
             uid = util.readCookie('trackUID');
             startTracking();
+            var div = document.createElement("div");
+            document.body.appendChild(div);
+            div.innerText ='User: ' + uid;
+            div.style.position = 'fixed';
+            div.style.right = '0';
+            div.style.bottom = '0';
+            div.style.zIndex = '9999999';
+            div.style.backgroundColor = '#bababa';
+            div.style.color = '#232323';
+            // $('body').append('<div id="tracking-badge" style="position: fixed; left:0; bottom:0; z-index: 999999; background-color: #bababa; color: #232323">User: ' + uid + '</div>')
         } else {
             cancelTracking();
         }
